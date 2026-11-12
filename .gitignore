@@ -1,5 +1,4 @@
 __pycache__/
 *.pyc
 .venv/
-results/output.txt
 results/plots/*.png

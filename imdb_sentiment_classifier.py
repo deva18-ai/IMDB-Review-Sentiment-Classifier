@@ -159,10 +159,27 @@ def analyze_word_counts(df: pd.DataFrame) -> pd.DataFrame:
     std_wc = df["word_count"].std(ddof=1)
     min_wc = df["word_count"].min()
     max_wc = df["word_count"].max()
+    iqr_wc = df["word_count"].quantile(0.75) - df["word_count"].quantile(0.25)
+    mode_band_width = max(1, int(np.ceil(2 * iqr_wc / len(df) ** (1 / 3))))
+    band_starts = (df["word_count"] // mode_band_width) * mode_band_width
+    band_counts = band_starts.value_counts()
+    most_frequent_bands = band_counts[band_counts == band_counts.max()].index
+    mode_bands = ", ".join(
+        f"[{int(start)}, {int(start) + mode_band_width - 1}]"
+        for start in sorted(most_frequent_bands)
+    )
 
     print(f"Mean word count: {mean_wc:.2f}")
     print(f"Median word count: {median_wc:.2f}")
     print(f"Mode word count: {mode_wc}")
+    print(
+        "Mode-band width (Freedman-Diaconis rule, rounded up to whole words): "
+        f"{mode_band_width} words"
+    )
+    print(
+        "Most frequent word-count interval(s), inclusive: "
+        f"{mode_bands} ({int(band_counts.max())} reviews)"
+    )
     print(f"Variance: {variance_wc:.2f}")
     print(f"Standard deviation: {std_wc:.2f}")
     print(f"Minimum word count: {min_wc}")
@@ -430,7 +447,6 @@ def save_results(output_text: str) -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as output_file:
         output_file.write(output_text)
-    print(f"\nSaved terminal output to {OUTPUT_PATH}")
 
 
 def main() -> None:
@@ -468,16 +484,6 @@ def main() -> None:
         ["negative", "positive"],
         "INITIAL 20,000-REVIEW EXPERIMENT",
     )
-    top_positive, top_negative = extract_important_terms(
-        sample_results["model"],
-        sample_results["vectorizer"],
-        sample_results["label_names"],
-    )
-    print("\n20 strongest positive terms:")
-    print(top_positive)
-    print("\n20 strongest negative terms:")
-    print(top_negative)
-
     valid_df = cleaned_df[(cleaned_df["cleaned_review"].notna()) & (cleaned_df["cleaned_review"].str.len() > 0)].copy()
     print(f"\nUsing {len(valid_df)} valid records for full-dataset experiment.")
 
@@ -498,6 +504,16 @@ def main() -> None:
         ["negative", "positive"],
         "FULL DATASET EXPERIMENT",
     )
+    top_positive, top_negative = extract_important_terms(
+        full_results["model"],
+        full_results["vectorizer"],
+        full_results["label_names"],
+    )
+    print("\n20 strongest positive terms from the FULL-DATASET MultinomialNB model:")
+    print(top_positive)
+    print("\n20 strongest negative terms from the FULL-DATASET MultinomialNB model:")
+    print(top_negative)
+
     print(f"\nSample-dataset accuracy: {sample_results['accuracy']:.4f}")
     print(f"Full-dataset accuracy: {full_results['accuracy']:.4f}")
     print("\nThis comparison shows how the same TF-IDF + Multinomial Naive Bayes pipeline performs on a smaller balanced subset and on the full dataset.")
@@ -508,4 +524,6 @@ if __name__ == "__main__":
     with redirect_stdout(buffer):
         main()
     output = buffer.getvalue()
-    print(output, end="")
+    complete_output = output + f"\nSaved terminal output to {OUTPUT_PATH}\n"
+    save_results(complete_output)
+    print(complete_output, end="")

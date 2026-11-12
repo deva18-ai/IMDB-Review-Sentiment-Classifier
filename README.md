@@ -45,7 +45,7 @@ IMDB Sentiment Classifier/
 ```
 
 ## Phase 1: Data Loading and Exploration
-This phase loads the dataset, prints the file shape, checks missing values, validates the key columns, and computes class distribution. It also calculates word-count statistics and reports duplicate rows without silently removing data.
+This phase loads the dataset, prints the file shape, checks missing values, validates the key columns, and computes class distribution. It also calculates word-count statistics and reports duplicate rows without silently removing data. Alongside the exact word-count mode, it reports a modal interval using the Freedman-Diaconis rule: the bin width is `ceil(2 * IQR / n^(1/3))`, rounded up to a whole number of words. The run on this dataset used a 9-word width and found `[126, 134]` to be the most frequent interval (3,117 reviews).
 
 ## Phase 2: Cleaning and NLP Preprocessing
 The cleaning pipeline removes HTML tags, lowercases the text, tokenizes the review using NLTK, removes stop words while preserving negation words, keeps alphabetic tokens, and finally applies lemmatization. Lemmatisation is preferred over stemming because it produces dictionary-form words that are more semantically accurate for sentiment analysis.
@@ -60,9 +60,13 @@ python -m venv .venv
 ```
 
 ## Execution Instructions
+Run these commands in PowerShell:
 ```bash
-.venv\Scripts\python imdb_sentiment_classifier.py
+Set-Location 'C:\Projects\IMDB Review Sentiment Classifier'
+.\.venv\Scripts\python -m pip install -r .\requirements.txt
+.\.venv\Scripts\python .\imdb_sentiment_classifier.py
 ```
+The script creates `results/` automatically and writes the complete console report, including both experiment reports, confusion matrices, full-model important terms, and the final accuracy comparison, to `results/output.txt`.
 
 ## Experimental Results
 The full project was executed with the actual IMDB dataset. The final results are reported in `results/output.txt` and include:
@@ -79,11 +83,14 @@ Actual execution results from the completed run:
 - Dataset size: 50,000 reviews, split evenly into 25,000 positive and 25,000 negative reviews.
 - Baseline majority accuracy: 0.5000.
 - Mean review length: 231.16 words; median: 173.00 words.
+- Exact word-count mode: 127; most frequent 9-word interval: [126, 134] (3,117 reviews).
 - Duplicates detected: 418 rows.
-- Efficient cleanup benchmark: 2.462448 seconds vs repeated initialization benchmark: 3.382463 seconds.
+- Efficient cleanup benchmark: 2.456137 seconds vs repeated initialization benchmark: 3.320877 seconds.
 - Initial 20,000-review experiment accuracy: 0.8825.
 - Full-dataset experiment accuracy: 0.8861.
+- Full-dataset precision: 0.8792; recall: 0.8952; F1-score: 0.8871.
 - Final confusion matrix: [[4385, 615], [524, 4476]].
+- The complete execution report is included in `results/output.txt`; it also lists the 20 strongest positive and negative terms learned by the full-dataset model.
 
 ## Limitations
 1. The model depends on the quality of the dataset and does not use contextual embeddings or transformer-based models.

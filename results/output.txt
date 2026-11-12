@@ -1,0 +1,161 @@
+Dataset loaded from: C:\Projects\IMDB Review Sentiment Classifier\dataset\IMDB Dataset.csv
+
+=== PHASE 1: DATASET LOADING AND EXPLORATION ===
+Dataset shape: (50000, 2)
+Total reviews: 50000
+
+Column names and dtypes:
+review       str
+sentiment    str
+
+Missing values per column:
+review       0
+sentiment    0
+
+Unique sentiment labels:
+['negative', 'positive']
+
+Sentiment counts:
+sentiment
+positive    25000
+negative    25000
+
+Sentiment percentages:
+sentiment
+positive    50.0
+negative    50.0
+
+Majority-class baseline accuracy: 0.5000
+
+=== WORD COUNT ANALYSIS ===
+count    50000.000000
+mean       231.156940
+std        171.343997
+min          4.000000
+25%        126.000000
+50%        173.000000
+75%        280.000000
+max       2470.000000
+Mean word count: 231.16
+Median word count: 173.00
+Mode word count: 127
+Mode-band width (Freedman-Diaconis rule, rounded up to whole words): 9 words
+Most frequent word-count interval(s), inclusive: [126, 134] (3117 reviews)
+Variance: 29358.77
+Standard deviation: 171.34
+Minimum word count: 4
+Maximum word count: 2470
+Mean exceeds median, suggesting a right-skewed distribution with some very long reviews.
+
+=== DUPLICATE ANALYSIS ===
+Duplicate rows: 418
+Unique reviews: 49582
+
+=== SENTIMENT-WISE WORD-LENGTH ANALYSIS ===
+Average positive review length: 232.85 words
+Average negative review length: 229.46 words
+Median positive review length: 172.00 words
+Median negative review length: 174.00 words
+Positive and negative reviews are compared directly; any difference may reflect review style or sentiment intensity.
+
+Saved plots to results/plots/
+
+=== NLP PREPROCESSING DEMONSTRATION ===
+Original text:
+<br />I was not happy with the movie, but it was never boring!<br>
+
+HTML-stripped text:
+ I was not happy with the movie, but it was never boring! 
+
+Lowercase text:
+ i was not happy with the movie, but it was never boring! 
+
+Tokenized text:
+['i', 'was', 'not', 'happy', 'with', 'the', 'movie', ',', 'but', 'it', 'was', 'never', 'boring', '!']
+
+Stop-word-filtered text:
+['not', 'happy', 'movie', 'never', 'boring']
+
+Stemmed text:
+['not', 'happi', 'movi', 'never', 'bore']
+
+Lemmatized text:
+['not', 'happy', 'movie', 'never', 'bore']
+
+Difference between stemming and lemmatization:
+- Stemming is a rule-based reduction that often cuts words to a rough root, such as 'better' -> 'better' or 'movies' -> 'movi'.
+- Lemmatization uses vocabulary and grammar to reduce words to a dictionary form, such as 'better' -> 'good' and 'movies' -> 'movie'.
+- Lemmatization is preferred here because it preserves semantic meaning more reliably, which is important in sentiment analysis.
+
+=== CLEANING PERFORMANCE BENCHMARK ===
+Efficient initialization outside the function: 2.456137 seconds
+Repeated initialization inside benchmark reference: 3.320877 seconds
+
+=== DATASET CLEANING ===
+Reviews that become empty after cleaning: 0
+Successfully processed reviews: 50000
+
+Prepared balanced sample dataset with 20000 rows.
+
+=== INITIAL 20,000-REVIEW EXPERIMENT ===
+Training feature shape: (16000, 50000)
+Testing feature shape: (4000, 50000)
+Vocabulary size: 50000
+Accuracy: 0.8825
+Precision: 0.8821
+Recall: 0.8830
+F1-score: 0.8826
+
+Classification report:
+              precision    recall  f1-score   support
+
+    negative       0.88      0.88      0.88      2000
+    positive       0.88      0.88      0.88      2000
+
+    accuracy                           0.88      4000
+   macro avg       0.88      0.88      0.88      4000
+weighted avg       0.88      0.88      0.88      4000
+
+
+Confusion matrix:
+[[1764  236]
+ [ 234 1766]]
+
+Using 50000 valid records for full-dataset experiment.
+
+=== FULL DATASET EXPERIMENT ===
+Training feature shape: (40000, 50000)
+Testing feature shape: (10000, 50000)
+Vocabulary size: 50000
+Accuracy: 0.8861
+Precision: 0.8792
+Recall: 0.8952
+F1-score: 0.8871
+
+Classification report:
+              precision    recall  f1-score   support
+
+    negative       0.89      0.88      0.89      5000
+    positive       0.88      0.90      0.89      5000
+
+    accuracy                           0.89     10000
+   macro avg       0.89      0.89      0.89     10000
+weighted avg       0.89      0.89      0.89     10000
+
+
+Confusion matrix:
+[[4385  615]
+ [ 524 4476]]
+
+20 strongest positive terms from the FULL-DATASET MultinomialNB model:
+['cast excellent', 'wonderful film', 'perfectly cast', 'also excellent', 'well worth', 'still great', 'edie', 'highly recommend', 'ponyo', 'geena', 'deeply move', 'excellently', 'goldsworthy', 'matthau', 'pecker', 'felix', 'keep edge', 'definitely worth', 'amaze job', 'definitely recommend']
+
+20 strongest negative terms from the FULL-DATASET MultinomialNB model:
+['worst movies', 'worst film', 'worst movie', 'one worst', 'avoid cost', 'waste time', 'waste money', 'act horrible', 'possibly worst', 'total waste', 'complete waste', 'stinker', 'awful movie', 'movie awful', 'uwe', 'redeem quality', 'terrible movie', 'boll', 'act awful', 'avoid like']
+
+Sample-dataset accuracy: 0.8825
+Full-dataset accuracy: 0.8861
+
+This comparison shows how the same TF-IDF + Multinomial Naive Bayes pipeline performs on a smaller balanced subset and on the full dataset.
+
+Saved terminal output to C:\Projects\IMDB Review Sentiment Classifier\results\output.txt
