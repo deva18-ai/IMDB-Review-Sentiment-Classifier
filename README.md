@@ -85,7 +85,7 @@ Actual execution results from the completed run:
 - Mean review length: 231.16 words; median: 173.00 words.
 - Exact word-count mode: 127; most frequent 9-word interval: [126, 134] (3,117 reviews).
 - Duplicates detected: 418 rows.
-- Efficient cleanup benchmark: 2.456137 seconds vs repeated initialization benchmark: 3.320877 seconds.
+- Efficient cleanup benchmark: 2.387123 seconds vs repeated initialization benchmark: 3.267832 seconds.
 - Initial 20,000-review experiment accuracy: 0.8825.
 - Full-dataset experiment accuracy: 0.8861.
 - Full-dataset precision: 0.8792; recall: 0.8952; F1-score: 0.8871.
@@ -98,3 +98,6 @@ Actual execution results from the completed run:
 
 ## Conclusion
 The project successfully implements a reproducible NLP sentiment-classification pipeline using TF-IDF and Multinomial Naive Bayes. It is suitable for a college-level machine learning project and demonstrates both the data-preprocessing workflow and model evaluation process.
+
+## Dataset Reference
+Maas, A. L., et al. (2011). *Learning Word Vectors for Sentiment Analysis*. Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies. Official reference: <https://aclanthology.org/P11-1015/>.

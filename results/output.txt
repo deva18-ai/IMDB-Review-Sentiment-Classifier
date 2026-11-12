@@ -85,11 +85,11 @@ Lemmatized text:
 Difference between stemming and lemmatization:
 - Stemming is a rule-based reduction that often cuts words to a rough root, such as 'better' -> 'better' or 'movies' -> 'movi'.
 - Lemmatization uses vocabulary and grammar to reduce words to a dictionary form, such as 'better' -> 'good' and 'movies' -> 'movie'.
-- Lemmatization is preferred here because it preserves semantic meaning more reliably, which is important in sentiment analysis.
+Lemmatization is preferred because it converts words into meaningful dictionary forms instead of simply cutting off word endings. This helps preserve the semantic meaning of reviews and provides more consistent features for sentiment classification.
 
 === CLEANING PERFORMANCE BENCHMARK ===
-Efficient initialization outside the function: 2.456137 seconds
-Repeated initialization inside benchmark reference: 3.320877 seconds
+Efficient initialization outside the function: 2.387123 seconds
+Repeated initialization inside benchmark reference: 3.267832 seconds
 
 === DATASET CLEANING ===
 Reviews that become empty after cleaning: 0

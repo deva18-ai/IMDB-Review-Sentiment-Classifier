@@ -33,8 +33,10 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 PLOTS_DIR = RESULTS_DIR / "plots"
 OUTPUT_PATH = RESULTS_DIR / "output.txt"
 RANDOM_SEED = 42
+# Negation can reverse sentiment, so these words must survive stop-word filtering.
 NEGATION_WORDS = {"not", "no", "never", "nor", "neither", "cannot"}
 
+# Make tokenizer and corpus data available before cleaning any review.
 try:
     import nltk
     nltk.data.find("tokenizers/punkt")
@@ -59,6 +61,7 @@ try:
 except LookupError:
     download("omw-1.4", quiet=True)
 
+# Reuse these NLP resources across reviews instead of rebuilding them per call.
 PORTER_STEMMER = PorterStemmer()
 WORDNET_LEMMATIZER = WordNetLemmatizer()
 STOP_WORDS = set(stopwords.words("english"))
@@ -310,7 +313,10 @@ def demonstrate_cleaning_example() -> None:
     print("\nDifference between stemming and lemmatization:")
     print("- Stemming is a rule-based reduction that often cuts words to a rough root, such as 'better' -> 'better' or 'movies' -> 'movi'.")
     print("- Lemmatization uses vocabulary and grammar to reduce words to a dictionary form, such as 'better' -> 'good' and 'movies' -> 'movie'.")
-    print("- Lemmatization is preferred here because it preserves semantic meaning more reliably, which is important in sentiment analysis.")
+    print(
+        "Lemmatization is preferred because it converts words into meaningful dictionary forms instead of simply cutting off word endings. "
+        "This helps preserve the semantic meaning of reviews and provides more consistent features for sentiment classification."
+    )
 
 
 def benchmark_cleaning(df: pd.DataFrame, sample_size: int = 1000) -> None:
@@ -359,6 +365,7 @@ def preprocess_dataset(df: pd.DataFrame) -> pd.DataFrame:
 
 def prepare_sample_dataset(df: pd.DataFrame, sample_size: int = 20000) -> pd.DataFrame:
     """Build a balanced 20k subset with 10k positive and 10k negative reviews."""
+    # Sample each class equally so the initial experiment is balanced and reproducible.
     pos_reviews = df[df["sentiment"] == "positive"].sample(n=sample_size // 2, random_state=RANDOM_SEED, replace=False)
     neg_reviews = df[df["sentiment"] == "negative"].sample(n=sample_size // 2, random_state=RANDOM_SEED, replace=False)
     sample_df = pd.concat([pos_reviews, neg_reviews], ignore_index=True)
@@ -369,6 +376,7 @@ def prepare_sample_dataset(df: pd.DataFrame, sample_size: int = 20000) -> pd.Dat
 def train_and_evaluate(X_train: pd.Series, X_test: pd.Series, y_train: pd.Series, y_test: pd.Series, label_names: list[str], run_name: str) -> dict:
     """Train a TF-IDF + Multinomial Naive Bayes model and evaluate it."""
     print(f"\n=== {run_name} ===")
+    # Both experiments share this function so their vectorizer and classifier settings stay identical.
     vectorizer = TfidfVectorizer(
         ngram_range=(1, 2),
         min_df=5,
@@ -376,6 +384,7 @@ def train_and_evaluate(X_train: pd.Series, X_test: pd.Series, y_train: pd.Series
         max_features=50000,
         sublinear_tf=True,
     )
+    # Fit vocabulary and IDF on training text only; test reviews must not leak into feature construction.
     X_train_vec = vectorizer.fit_transform(X_train)
     X_test_vec = vectorizer.transform(X_test)
 
@@ -469,6 +478,7 @@ def main() -> None:
 
     X_sample = sample_df["cleaned_review"].fillna("")
     y_sample = sample_df["sentiment"].astype(str).str.lower()
+    # Stratification keeps the balanced sample's class proportions in both splits.
     X_sample_train, X_sample_test, y_sample_train, y_sample_test = train_test_split(
         X_sample,
         y_sample,
@@ -489,6 +499,7 @@ def main() -> None:
 
     X_full = valid_df["cleaned_review"].fillna("")
     y_full = valid_df["sentiment"].astype(str).str.lower()
+    # Stratification preserves the full dataset's class proportions in both splits.
     X_full_train, X_full_test, y_full_train, y_full_test = train_test_split(
         X_full,
         y_full,
@@ -504,6 +515,7 @@ def main() -> None:
         ["negative", "positive"],
         "FULL DATASET EXPERIMENT",
     )
+    # Report terms learned from the final full-dataset model, not the sample model.
     top_positive, top_negative = extract_important_terms(
         full_results["model"],
         full_results["vectorizer"],
